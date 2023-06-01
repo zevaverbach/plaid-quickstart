@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <link href="./favicon.ico" rel="icon" type="image/x-icon" />
     <script>
-      const TBD = "";
-      const URL_BASE = window.location.href === "http://localhost:8080/" ? "http://localhost:8000" : TBD;
+      const SERVER_URL_BASE = "";
+      const URL_BASE = window.location.href === "http://localhost:8080/" ? "http://localhost:8000" : SERVER_URL_BASE;
       (async ($) => {
         // Grab a Link token to initialize Link
         const createLinkToken = async () => {
-            const res = await fetch(`${URL_BASE}/api/create_link_token`, {method: "POST"});
+          const res = await fetch(`${URL_BASE}/api/create_link_token`, {method: "POST"});
           const data = await res.json();
           const linkToken = data.link_token;
           localStorage.setItem("link_token", linkToken);
@@ -48,7 +49,7 @@
 
       // Retrieves balance information
       const getBalance = async function () {
-        const response = await fetch(`${URL_BASE}/api/data`, {
+        const response = await fetch(`${URL_BASE}/api/balance`, {
           method: "GET",
         });
         const data = await response.json();
@@ -59,16 +60,6 @@
         pre.style.background = "#F6F6F6";
       };
 
-      // Check whether account is connected
-      const getStatus = async function () {
-        const account = await fetch(`${URL_BASE}/api/is_account_connected`);
-        const connected = await account.json();
-        if (connected.status == true) {
-          getBalance();
-        }
-      };
-
-      getStatus();
     </script>
   </head>
   <title>Plaid | Minimal Quickstart</title>
