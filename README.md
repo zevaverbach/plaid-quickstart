@@ -8,8 +8,6 @@ This Quickstart is designed to showcase several basic Plaid APIs, against a vani
 
 If you prefer a React frontend platform, use [the original version of this repo](https://github.com/plaid/quickstart), which integrates one. For a more minimal backend in one language with one endpoint, see the [Tiny Quickstart](https://github.com/plaid/tiny-quickstart), which shows a simpler backend and is available for JavaScript, Next.js, React, and React Native frontends.
 
-For Identity Verification, see the [Identity Verification Quickstart](https://github.com/plaid/idv-quickstart). 
-
 ## Table of contents
 
 <!-- toc -->
@@ -72,19 +70,12 @@ In [the Plaid API dashboard](https://dashboard.plaid.com/team/api) click "config
 
 Once started with one of the commands below, the quickstart will be running on http://localhost:8000 for the backend. Enter the additional commands in step 2 to run the frontend which will run on http://localhost:3000.
 
-#### Python
-
-**:warning: As `python2` has reached its end of life, only `python3` is supported.**
-
 ```bash
-cd ./backend
-
-# If you use virtualenv
-# virtualenv venv
-# source venv/bin/activate
-
-pip3 install -r requirements.txt
-./start.sh
+cd backend
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python server.py
 ```
 
 If you get this error message:
@@ -93,13 +84,35 @@ If you get this error message:
 ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:749)
 ```
 
-You may need to run the following command in your terminal for your particular version of Python in order to install SSL certificates:
+You may need to install SSL certificates. 
+
+On MacOS:
 
 ```bash
-# examples:
-open /Applications/Python\ 3.9/Install\ Certificates.command
-# or
-open /Applications/Python\ 3.6/Install\ Certificates.command
+open /Applications/Python\ 3.<your python version>/Install\ Certificates.command
+```
+
+On Linux:
+
+```bash
+sudo update-ca-certificates --fresh
+export SSL_CERT_DIR=/etc/ssl/certs
+```
+
+or 
+
+```bash
+cd $HOME
+wget --quiet https://curl.haxx.se/ca/cacert.pem
+export SSL_CERT_FILE=$HOME/cacert.pem
+```
+
+On Windows:
+
+```powershell
+cd $HOME
+wget --quiet https://curl.haxx.se/ca/cacert.pem
+set SSL_CERT_FILE=$HOME/cacert.pem
 ```
 
 ## Test credentials
