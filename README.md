@@ -117,7 +117,7 @@ set SSL_CERT_FILE=$HOME/cacert.pem
 
 ## Test credentials
 
-In Sandbox, you can log in to any supported institution (except Capital One) using `user_good` as the username and `pass_good` as the password. If prompted to enter a 2-factor authentication code, enter `1234`.
+In Sandbox, you can log in to any supported institution (except Capital One) using any username or password. If prompted to enter a 2-factor authentication code, enter anything you want and it'll work.
 
 In Development or Production, use real-life credentials.
 
