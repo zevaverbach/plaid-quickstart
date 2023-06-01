@@ -71,12 +71,6 @@ PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions').split(',')
 PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')
 
 
-def empty_to_none(field):
-    value = os.getenv(field)
-    if value is None or len(value) == 0:
-        return None
-    return value
-
 host = plaid.Environment.Sandbox
 
 if PLAID_ENV == 'sandbox':
@@ -95,7 +89,7 @@ if PLAID_ENV == 'production':
 # that the bank website should redirect to. You will need to configure
 # this redirect URI for your client ID through the Plaid developer dashboard
 # at https://dashboard.plaid.com/team/api.
-PLAID_REDIRECT_URI = empty_to_none('PLAID_REDIRECT_URI')
+PLAID_REDIRECT_URI = os.getenv('PLAID_REDIRECT_URI') or None
 
 configuration = plaid.Configuration(
     host=host,
@@ -175,7 +169,7 @@ def create_link_token_for_payment():
         # persistent data store along with the Payment metadata, such as userId.
         payment_id = response['payment_id']
         
-        linkRequest = LinkTokenCreateRequest(
+        link_request = LinkTokenCreateRequest(
             # The 'payment_initiation' product has to be the only element in the 'products' list.
             products=[Products('payment_initiation')],
             client_name='Plaid Test',
@@ -193,13 +187,13 @@ def create_link_token_for_payment():
             )
         )
 
-        if PLAID_REDIRECT_URI!=None:
-            linkRequest['redirect_uri']=PLAID_REDIRECT_URI
-        linkResponse = client.link_token_create(linkRequest)
-        pretty_print_response(linkResponse.to_dict())
-        return jsonify(linkResponse.to_dict())
+        if PLAID_REDIRECT_URI is not None:
+            link_request['redirect_uri']=PLAID_REDIRECT_URI
+        link_reponse = client.link_token_create(link_request)
+        pretty_print_response(link_reponse.to_dict())
+        return jsonify(link_reponse.to_dict())
     except plaid.ApiException as e:
-        return json.loads(e.body or "{}")
+        return json.loads(e.body) # type: ignore
 
 
 @app.route('/api/create_link_token', methods=['POST'])
@@ -220,7 +214,7 @@ def create_link_token():
         response = client.link_token_create(request)
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
-        return json.loads(e.body)
+        return json.loads(e.body) # type: ignore
 
 
 # Exchange token flow - exchange a Link public_token for
@@ -244,7 +238,7 @@ def get_access_token():
             transfer_id = authorize_and_create_transfer(access_token)
         return jsonify(exchange_response.to_dict())
     except plaid.ApiException as e:
-        return json.loads(e.body)
+        return json.loads(e.body) # type: ignore
 
 
 # Retrieve ACH or ETF account numbers for an Item
@@ -398,6 +392,7 @@ def get_assets():
     # Poll for the completion of the Asset Report.
     num_retries_remaining = 20
     asset_report_json = None
+    err = None
     while num_retries_remaining > 0:
         try:
             request = AssetReportGetRequest(
@@ -407,18 +402,18 @@ def get_assets():
             asset_report_json = response['report']
             break
         except plaid.ApiException as e:
-            response = json.loads(e.body)
+            response = json.loads(e.body) # type: ignore
             if response['error_code'] == 'PRODUCT_NOT_READY':
+                err = e
                 num_retries_remaining -= 1
                 time.sleep(1)
                 continue
-        error_response = format_error(e)
-        return jsonify(error_response)
+            error_response = format_error(e)
+            return jsonify(error_response)
     if asset_report_json is None:
-        return jsonify({'error': {'status_code': e.status, 'display_message':
+        return jsonify({'error': {'status_code': err.status, 'display_message': # type: ignore
                                   'Timed out when polling for Asset Report', 'error_code': '', 'error_type': ''}})
 
-    asset_report_pdf = None
     try:
         request = AssetReportPDFGetRequest(
             asset_report_token=asset_report_token,
@@ -607,4 +602,4 @@ def authorize_and_create_transfer(access_token):
 
 
 if __name__ == '__main__':
-    app.run(port=os.getenv('PORT', 8000))
+    app.run(port=int(os.getenv('PORT', 8000)))
