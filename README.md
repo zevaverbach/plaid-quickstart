@@ -115,6 +115,13 @@ wget --quiet https://curl.haxx.se/ca/cacert.pem
 set SSL_CERT_FILE=$HOME/cacert.pem
 ```
 
+### Running the frontend
+
+```bash
+cd frontend
+python3 -m http.server 8080
+```
+
 ## Test credentials
 
 In Sandbox, you can log in to any supported institution (except Capital One) using any username or password. If prompted to enter a 2-factor authentication code, enter anything you want and it'll work.

@@ -4,9 +4,9 @@ import datetime as dt
 import json
 import time
 
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from dotenv import load_dotenv
 import plaid
 from plaid.model.payment_amount import PaymentAmount
 from plaid.model.payment_amount_currency import PaymentAmountCurrency
@@ -103,10 +103,7 @@ configuration = plaid.Configuration(
 api_client = plaid.ApiClient(configuration)
 client = plaid_api.PlaidApi(api_client)
 
-products = []
-for product in PLAID_PRODUCTS:
-    products.append(Products(product))
-
+products = [Products(product) for product in PLAID_PRODUCTS]
 
 # We store the access_token in memory - in production, store it in a secure
 # persistent data store.
@@ -210,7 +207,7 @@ def create_link_token():
         )
         if PLAID_REDIRECT_URI!=None:
             request['redirect_uri']=PLAID_REDIRECT_URI
-    # create link token
+        # create link token
         response = client.link_token_create(request)
         return jsonify(response.to_dict())
     except plaid.ApiException as e:

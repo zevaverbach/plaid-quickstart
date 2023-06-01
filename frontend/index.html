@@ -5,10 +5,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <script>
+      const TBD = "";
+      const URL_BASE = window.location.href === "http://localhost:8080/" ? "http://localhost:8000" : TBD;
       (async ($) => {
         // Grab a Link token to initialize Link
-        const TBD = "";
-        const URL_BASE = window.location.href === "http://localhost:8080/" ? "http://localhost:8000" : TBD;
         const createLinkToken = async () => {
             const res = await fetch(`${URL_BASE}/api/create_link_token`, {method: "POST"});
           const data = await res.json();
